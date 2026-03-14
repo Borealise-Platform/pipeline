@@ -1,0 +1,46 @@
+{
+  "name": "@borealise/pipeline",
+  "version": "1.0.0-alpha.0",
+  "description": "Official realtime pipeline client for Borealise",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "borealise",
+    "pipeline",
+    "websocket",
+    "realtime",
+    "client"
+  ],
+  "author": "Borealise",
+  "license": "MIT",
+  "homepage": "https://borealise.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Borealise-Platform/pipeline"
+  },
+  "bugs": {
+    "url": "https://github.com/Borealise-Platform/pipeline/issues"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2"
+  }
+}
