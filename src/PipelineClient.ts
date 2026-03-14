@@ -29,14 +29,17 @@ import type {
 } from './types'
 
 export class PipelineClient {
+  private static readonly WS_CONNECTING = 0
+  private static readonly WS_OPEN = 1
+
   private readonly logger: Logger
   private readonly options: Required<Pick<PipelineClientOptions, 'url'>> & PipelineClientOptions
 
   private ws: WebSocket | null = null
   private sessionId: string | null = null
   private heartbeatInterval: number | null = null
-  private heartbeatTimer: number | null = null
-  private reconnectTimer: number | null = null
+  private heartbeatTimer: ReturnType<typeof setInterval> | null = null
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null
   private reconnectAttempts = 0
   private lastSequence = 0
   private subscriptions: Set<EventCode> = new Set()
@@ -82,7 +85,13 @@ export class PipelineClient {
       return
     }
 
-    if (this.ws && (this.ws.readyState === WebSocket.CONNECTING || this.ws.readyState === WebSocket.OPEN)) {
+    if (
+      this.ws
+      && (
+        this.ws.readyState === PipelineClient.WS_CONNECTING
+        || this.ws.readyState === PipelineClient.WS_OPEN
+      )
+    ) {
       this.logger.warn('Already connected or connecting')
       return
     }
@@ -90,7 +99,17 @@ export class PipelineClient {
     this.setState('connecting')
 
     try {
-      const factory = this.options.webSocketFactory || ((url: string) => new WebSocket(url))
+      const factory = this.options.webSocketFactory
+        || (typeof globalThis.WebSocket !== 'undefined'
+          ? ((url: string) => new globalThis.WebSocket(url))
+          : null)
+
+      if (!factory) {
+        this.logger.error('No WebSocket runtime found. In Node.js, provide webSocketFactory (for example using ws).')
+        this.setState('disconnected')
+        return
+      }
+
       this.ws = factory(this.options.url)
       this.ws.onopen = () => this.handleOpen()
       this.ws.onmessage = (event) => this.handleMessage(event)
@@ -329,7 +348,7 @@ export class PipelineClient {
     const jitter = this.heartbeatInterval * 0.1 * (Math.random() * 2 - 1)
     const interval = this.heartbeatInterval + jitter
 
-    this.heartbeatTimer = window.setInterval(() => {
+    this.heartbeatTimer = globalThis.setInterval(() => {
       this.sendHeartbeat()
     }, interval)
 
@@ -354,7 +373,7 @@ export class PipelineClient {
     const backoffIndex = Math.min(this.reconnectAttempts, this.reconnectBackoff.length - 1)
     const delay = this.reconnectBackoff[backoffIndex] as number
 
-    this.reconnectTimer = window.setTimeout(() => {
+    this.reconnectTimer = globalThis.setTimeout(() => {
       this.reconnectAttempts += 1
       this.emit('onReconnect', this.reconnectAttempts)
       this.connect()
@@ -362,7 +381,7 @@ export class PipelineClient {
   }
 
   private send<T>(op: Opcode, data: T): void {
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+    if (!this.ws || this.ws.readyState !== PipelineClient.WS_OPEN) {
       this.logger.warn('Cannot send: not connected')
       return
     }
