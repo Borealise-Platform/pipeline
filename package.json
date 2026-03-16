@@ -1,6 +1,6 @@
 {
   "name": "@borealise/pipeline",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "Official realtime pipeline client for Borealise",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -42,5 +42,8 @@
   "devDependencies": {
     "tsup": "^8.5.0",
     "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@borealise/shared": "^1.0.0"
   }
 }
