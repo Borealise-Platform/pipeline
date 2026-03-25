@@ -5,7 +5,7 @@
     "": {
       "name": "@borealise/pipeline",
       "dependencies": {
-        "@borealise/shared": "^1.0.3",
+        "@borealise/shared": "^1.0.4",
       },
       "devDependencies": {
         "tsup": "^8.5.0",
@@ -14,7 +14,7 @@
     },
   },
   "packages": {
-    "@borealise/shared": ["@borealise/shared@1.0.3", "", {}, "sha512-ua2qV4OopyX6cDtqcohJkBivAs/0udymvkjD5FXJYblJxQ5wK8T8yiCLdywZXLQdXZfJohhoBQ5r3/3t71n65Q=="],
+    "@borealise/shared": ["@borealise/shared@1.0.4", "", {}, "sha512-Cys82icQi1AETKGHZhh0lrL6Fu1d7ke19YD5OTjnvxEsEEvmaIY+T2j011EsOq/4DQ7+0SyQ4gks5HlKusxjDA=="],
 
     "@esbuild/aix-ppc64": ["@esbuild/aix-ppc64@0.27.4", "", { "os": "aix", "cpu": "ppc64" }, "sha512-cQPwL2mp2nSmHHJlCyoXgHGhbEPMrEEU5xhkcy3Hs/O7nGZqEpZ2sUtLaL9MORLtDfRvVl2/3PAuEkYZH0Ty8Q=="],
 

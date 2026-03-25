@@ -54,10 +54,61 @@ export interface ReadyPayload {
     id: number
     username: string
     display_name: string | null
+    avatar_id: string | null
     role: RoleCode
     flags: number
+    xp: number
+    level: number
+    subscription_type: string | null
+    subscription_months: number
   }
   resume_url?: string
+}
+
+export interface RoomChatMessageEvent {
+  room_id: number
+  room_slug: string
+  message_id: string
+  user_id?: number
+  username?: string
+  display_name?: string | null
+  avatar_id?: string | null
+  role?: string
+  global_role?: string | null
+  subscription_type?: string | null
+  subscription_months?: number
+  content: string
+  timestamp: number
+  type?: 'user' | 'system'
+  edited_at?: number
+  edited_by?: number
+}
+
+export interface RoomChatUpdateEvent {
+  room_id: number
+  room_slug: string
+  message_id: string
+  user_id?: number
+  username?: string
+  display_name?: string | null
+  avatar_id?: string | null
+  role?: string
+  global_role?: string | null
+  subscription_type?: string | null
+  subscription_months?: number
+  content: string
+  timestamp: number
+  type?: 'user' | 'system'
+  edited_at?: number
+  edited_by?: number
+}
+
+export interface RoomChatDeleteEvent {
+  room_id: number
+  room_slug: string
+  message_id: string
+  deleted_by: number
+  deleted_at?: number
 }
 
 export interface InvalidSessionPayload {
