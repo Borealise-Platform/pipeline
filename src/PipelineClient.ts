@@ -8,7 +8,7 @@ import {
   PipelineErrors,
   type PresenceCode,
   getPipelineErrorName,
-} from './constants/opcodes'
+} from '@borealise/shared'
 import type {
   ChatSendPayload,
   ConnectionState,
@@ -32,7 +32,7 @@ export class PipelineClient {
   private static readonly WS_CONNECTING = 0
   private static readonly WS_OPEN = 1
 
-  private readonly logger: Logger
+  private readonly logger: Logger | undefined
   private readonly options: Required<Pick<PipelineClientOptions, 'url'>> & PipelineClientOptions
 
   private ws: WebSocket | null = null
@@ -56,7 +56,7 @@ export class PipelineClient {
 
   constructor(options: PipelineClientOptions) {
     this.options = { ...options }
-    this.logger = Logger.create(options.loggerName || 'Pipeline')
+    this.logger = options.loggerEnabled ? Logger.create('Pipeline') : undefined
   }
 
   public get state(): ConnectionState {
@@ -81,7 +81,7 @@ export class PipelineClient {
 
   public connect(): void {
     if (!this.options.url) {
-      this.logger.error('Cannot connect: missing pipeline url')
+      this.logger?.error('Cannot connect: missing pipeline url')
       return
     }
 
@@ -92,7 +92,7 @@ export class PipelineClient {
         || this.ws.readyState === PipelineClient.WS_OPEN
       )
     ) {
-      this.logger.warn('Already connected or connecting')
+      this.logger?.warn('Already connected or connecting')
       return
     }
 
@@ -105,9 +105,8 @@ export class PipelineClient {
           : null)
 
       if (!factory) {
-        this.logger.error('No WebSocket runtime found. In Node.js, provide webSocketFactory (for example using ws).')
         this.setState('disconnected')
-        return
+        throw new ReferenceError('No WebSocket runtime found. In Node.js, provide webSocketFactory (for example using ws).')
       }
 
       this.ws = factory(this.options.url)
@@ -116,7 +115,7 @@ export class PipelineClient {
       this.ws.onclose = (event) => this.handleClose(event)
       this.ws.onerror = (event) => this.handleError(event)
     } catch (error) {
-      this.logger.error('Connection failed', error)
+      this.logger?.error('Connection failed', error)
       this.scheduleReconnect()
     }
   }
@@ -165,7 +164,6 @@ export class PipelineClient {
 
   public sendChatMessage(roomSlug: string, content: string): boolean {
     if (!this.isIdentified) {
-      this.logger.warn('Cannot send chat: not identified')
       return false
     }
 
@@ -222,7 +220,7 @@ export class PipelineClient {
   }
 
   private handleOpen(): void {
-    this.logger.info('Connected')
+    this.logger?.info('Connected')
     this.setState('connected')
     this.reconnectAttempts = 0
     this.emit('onConnect')
@@ -253,16 +251,15 @@ export class PipelineClient {
         case Opcodes.ERROR:
           this.handleServerError(message.d as ErrorPayload)
           break
-        default:
-          this.logger.warn(`Unknown opcode: ${message.op}`)
+        default: this.logger?.warn(`Unknown opcode: ${message.op}`)
       }
     } catch (error) {
-      this.logger.error('Failed to parse message', error)
+      this.logger?.error('Failed to parse message', error)
     }
   }
 
   private handleClose(event: CloseEvent): void {
-    this.logger.info(`Disconnected: ${event.code} - ${event.reason}`)
+    this.logger?.info(`Disconnected: ${event.code} - ${event.reason}`)
     this.clearTimers()
     this.ws = null
 
@@ -283,7 +280,7 @@ export class PipelineClient {
   }
 
   private handleError(_event: Event): void {
-    this.logger.error('WebSocket error')
+    this.logger?.error('WebSocket error')
   }
 
   private handleHello(payload: HelloPayload): void {
@@ -317,7 +314,7 @@ export class PipelineClient {
   }
 
   private handleReconnect(): void {
-    this.logger.info('Server requested reconnect')
+    this.logger?.info('Server requested reconnect')
     this.disconnect()
     this.connect()
   }
@@ -333,7 +330,7 @@ export class PipelineClient {
   }
 
   private handleServerError(payload: ErrorPayload): void {
-    this.logger.error(`Server error: ${payload.code} - ${payload.message || 'unknown'}`)
+    this.logger?.error(`Server error: ${payload.code} - ${payload.message || 'unknown'}`)
     this.emit('onError', payload)
     this.dispatchHandler?.('pipeline/handleServerError', payload)
   }
@@ -363,7 +360,7 @@ export class PipelineClient {
 
   private scheduleReconnect(): void {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      this.logger.error('Max reconnect attempts reached')
+      this.logger?.error('Max reconnect attempts reached')
       this.setState('disconnected')
       return
     }
@@ -382,7 +379,6 @@ export class PipelineClient {
 
   private send<T>(op: Opcode, data: T): void {
     if (!this.ws || this.ws.readyState !== PipelineClient.WS_OPEN) {
-      this.logger.warn('Cannot send: not connected')
       return
     }
 
@@ -398,7 +394,7 @@ export class PipelineClient {
       try {
         listener(data)
       } catch (error) {
-        this.logger.error(`Event listener error for ${event}`, error)
+        this.logger?.error(`Event listener error for ${event}`, error)
       }
     }
   }
@@ -411,7 +407,7 @@ export class PipelineClient {
       try {
         ;(listener as (...listenerArgs: unknown[]) => void)(...args)
       } catch (error) {
-        this.logger.error(`Connection listener error for ${event}`, error)
+        this.logger?.error(`Connection listener error for ${event}`, error)
       }
     }
   }

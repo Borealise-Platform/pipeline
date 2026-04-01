@@ -1,4 +1,4 @@
-import type { ActivityCode, EventCode, Opcode, PresenceCode, RoleCode } from './constants/opcodes'
+import type { ActivityCode, EventCode, Opcode, PresenceCode, RoleCode } from '@borealise/shared'
 
 export interface PipelineMessage<T = unknown> {
   op: Opcode
@@ -140,6 +140,6 @@ export type DispatchHandler = (action: string, payload?: unknown) => void
 export interface PipelineClientOptions {
   url: string
   tokenProvider?: () => string | null | undefined
-  loggerName?: string
+  loggerEnabled?: boolean
   webSocketFactory?: (url: string) => WebSocket
 }
