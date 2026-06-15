@@ -44,6 +44,6 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@borealise/shared": "^1.0.5"
+    "@borealise/shared": "^2026.6.11-beta.1"
   }
 }
