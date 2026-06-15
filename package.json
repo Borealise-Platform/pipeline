@@ -1,6 +1,6 @@
 {
   "name": "@borealise/pipeline",
-  "version": "2026.6.16-beta.1",
+  "version": "2026.6.16-beta.2",
   "description": "Official realtime pipeline client for Borealise",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
