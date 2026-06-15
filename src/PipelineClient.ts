@@ -185,14 +185,14 @@ export class PipelineClient {
     this.send<WtSeekPayload>(Opcodes.WT_SEEK, { room_slug: roomSlug, position })
   }
 
-  public sendWtPause(roomSlug: string): void {
+  public sendWtPause(roomSlug: string, position: number): void {
     if (!this.isIdentified) return
-    this.send<WtPausePayload>(Opcodes.WT_PAUSE, { room_slug: roomSlug })
+    this.send<WtPausePayload>(Opcodes.WT_PAUSE, { room_slug: roomSlug, position })
   }
 
-  public sendWtResume(roomSlug: string): void {
+  public sendWtResume(roomSlug: string, position: number): void {
     if (!this.isIdentified) return
-    this.send<WtResumePayload>(Opcodes.WT_RESUME, { room_slug: roomSlug })
+    this.send<WtResumePayload>(Opcodes.WT_RESUME, { room_slug: roomSlug, position })
   }
 
   public sendWtStateRequest(roomSlug: string): void {

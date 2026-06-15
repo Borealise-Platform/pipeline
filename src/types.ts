@@ -50,10 +50,12 @@ export interface WtSeekPayload {
 
 export interface WtPausePayload {
   room_slug: string
+  position: number
 }
 
 export interface WtResumePayload {
   room_slug: string
+  position: number
 }
 
 export interface WtStateRequestPayload {
