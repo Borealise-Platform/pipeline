@@ -69,6 +69,11 @@ export interface WtStateResponsePayload {
   position: number
 }
 
+export interface WtHeartbeatPayload {
+  room_slug: string
+  position: number
+}
+
 export interface HelloPayload {
   heartbeat_interval: number
   session_id: string
