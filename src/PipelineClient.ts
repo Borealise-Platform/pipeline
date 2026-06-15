@@ -31,6 +31,7 @@ import type {
   WtResumePayload,
   WtStateRequestPayload,
   WtStateResponsePayload,
+  WtHeartbeatPayload,
 } from './types'
 
 export class PipelineClient {
@@ -198,6 +199,11 @@ export class PipelineClient {
   public sendWtStateRequest(roomSlug: string): void {
     if (!this.isIdentified) return
     this.send<WtStateRequestPayload>(Opcodes.WT_STATE_REQUEST, { room_slug: roomSlug })
+  }
+
+  public sendWtHeartbeat(roomSlug: string, position: number): void {
+    if (!this.isIdentified) return
+    this.send<WtHeartbeatPayload>(Opcodes.WT_HEARTBEAT, { room_slug: roomSlug, position })
   }
 
   public sendWtStateResponse(roomSlug: string, targetSessionId: string, paused: boolean, position: number): void {
