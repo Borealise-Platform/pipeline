@@ -43,6 +43,30 @@ export interface ChatSendPayload {
   content: string
 }
 
+export interface WtSeekPayload {
+  room_slug: string
+  position: number
+}
+
+export interface WtPausePayload {
+  room_slug: string
+}
+
+export interface WtResumePayload {
+  room_slug: string
+}
+
+export interface WtStateRequestPayload {
+  room_slug: string
+}
+
+export interface WtStateResponsePayload {
+  room_slug: string
+  target_session_id: string
+  paused: boolean
+  position: number
+}
+
 export interface HelloPayload {
   heartbeat_interval: number
   session_id: string

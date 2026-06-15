@@ -26,6 +26,11 @@ import type {
   ReadyPayload,
   SubscribePayload,
   UnsubscribePayload,
+  WtSeekPayload,
+  WtPausePayload,
+  WtResumePayload,
+  WtStateRequestPayload,
+  WtStateResponsePayload,
 } from './types'
 
 export class PipelineClient {
@@ -173,6 +178,36 @@ export class PipelineClient {
     })
 
     return true
+  }
+
+  public sendWtSeek(roomSlug: string, position: number): void {
+    if (!this.isIdentified) return
+    this.send<WtSeekPayload>(Opcodes.WT_SEEK, { room_slug: roomSlug, position })
+  }
+
+  public sendWtPause(roomSlug: string): void {
+    if (!this.isIdentified) return
+    this.send<WtPausePayload>(Opcodes.WT_PAUSE, { room_slug: roomSlug })
+  }
+
+  public sendWtResume(roomSlug: string): void {
+    if (!this.isIdentified) return
+    this.send<WtResumePayload>(Opcodes.WT_RESUME, { room_slug: roomSlug })
+  }
+
+  public sendWtStateRequest(roomSlug: string): void {
+    if (!this.isIdentified) return
+    this.send<WtStateRequestPayload>(Opcodes.WT_STATE_REQUEST, { room_slug: roomSlug })
+  }
+
+  public sendWtStateResponse(roomSlug: string, targetSessionId: string, paused: boolean, position: number): void {
+    if (!this.isIdentified) return
+    this.send<WtStateResponsePayload>(Opcodes.WT_STATE_RESPONSE, {
+      room_slug: roomSlug,
+      target_session_id: targetSessionId,
+      paused,
+      position,
+    })
   }
 
   public on<T = unknown>(event: EventCode, listener: EventListener<T>): () => void {
