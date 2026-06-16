@@ -152,7 +152,50 @@ export interface ErrorPayload {
   message?: string
 }
 
-export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'reconnecting' | 'identified'
+/**
+ * Connection state as a bitfield. Exactly one phase bit
+ * (`DISCONNECTED`/`CONNECTING`/`CONNECTED`/`RECONNECTING`/`IDENTIFIED`) is
+ * ever set at a time — `IDENTIFIED` implies "connected", so callers that
+ * want "connected or identified" use `state & ConnectionFlags.CONNECTED`
+ * (see {@link isConnectionFlagSet}) rather than two equality checks.
+ *
+ * Transitions are plain bitwise ops:
+ * ```ts
+ * state = ConnectionFlags.CONNECTING                       // assign
+ * state |= ConnectionFlags.IDENTIFIED                       // set a bit
+ * state &= ~ConnectionFlags.IDENTIFIED                       // clear a bit
+ * if (state & ConnectionFlags.CONNECTED) { ... }              // test a bit
+ * ```
+ */
+const CONNECTING = 1 << 0
+const CONNECTED = 1 << 1
+const RECONNECTING = 1 << 2
+const IDENTIFIED_BIT = 1 << 3
+
+export const ConnectionFlags = {
+  DISCONNECTED: 0,
+  CONNECTING,
+  CONNECTED,
+  RECONNECTING,
+  // Composite: identified sessions are always connected, so the
+  // CONNECTED bit stays set — `state & ConnectionFlags.CONNECTED` matches
+  // both 'connected' and 'identified' with one bitwise test.
+  IDENTIFIED: CONNECTED | IDENTIFIED_BIT,
+} as const
+
+export type ConnectionFlag = typeof ConnectionFlags[keyof typeof ConnectionFlags]
+
+/**
+ * Numeric bitfield. Despite the name (kept for continuity with the
+ * pre-bitfield API), this is a `number`, not a string union — compare it
+ * with {@link isConnectionFlagSet} or `&`/`===` against {@link ConnectionFlags}.
+ */
+export type ConnectionState = number
+
+/** `true` if every bit in `flag` is set on `state`. */
+export function isConnectionFlagSet(state: ConnectionState, flag: ConnectionFlag): boolean {
+  return (state & flag) === flag
+}
 
 export type EventListener<T = unknown> = (data: T) => void
 
